@@ -9,12 +9,14 @@
   <link rel="preload" href="assets/fonts/rakuten-sans-regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/rakuten-serif-regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
+  <script type="module" src="script.js"></script>
 </head>
 <body>
   <div class="display">
     <header class="status-bar">
       <span class="profile-filename">profile.epub</span>
       <span class="display-label">E-PAPER DISPLAY</span>
+      <time id="clock" aria-label="Current local time">--:-- --</time>
     </header>
 
     <main>
@@ -47,13 +49,18 @@
 
       <div class="page-end">
         <section class="currently-reading" aria-label="I’m currently reading"><p class="reading-label">I’M CURRENTLY READING</p><p class="book-title">Designing Data-Intensive Applications</p><p class="book-author">by Martin Kleppmann</p></section>
+        <div class="display-settings"><div class="ink-scale" role="group" aria-label="Display palette">
+          <button type="button" data-theme-choice="night" aria-label="Night palette" aria-pressed="false"><span></span></button>
+          <button type="button" data-theme-choice="paper" aria-label="Paper palette" aria-pressed="true"><span></span></button>
+        </div></div>
       </div>
     </main>
 
     <footer class="quote-bar">
       <div class="quote-display" id="quote-display">
-        <div class="quote-content"><span class="quote-mark" aria-hidden="true">“</span><div><p id="quote-text">Be the change that you wish to see in the world.</p><p class="quote-caption">MY FAVOURITE QUOTES</p></div></div>
+        <div class="quote-content"><span class="quote-mark" aria-hidden="true">“</span><div><p id="quote-text">Be the change that you wish to see in the world.</p><p class="quote-caption">MY FAVOURITE QUOTES <span aria-hidden="true">/</span> <span id="quote-position">01 OF 10</span></p></div></div>
       </div>
+      <div class="quote-controls"><button id="pause-quotes" type="button" aria-label="Pause quote rotation" aria-pressed="false"><svg class="pause-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10m6-10v10"/></svg><svg class="play-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 8 5-8 5z"/></svg></button><button id="next-quote" type="button" aria-label="Next quote"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></button></div>
     </footer>
   </div>
 
