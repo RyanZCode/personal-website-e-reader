@@ -6,16 +6,19 @@ const quotes = [
   { text: 'A moving man will eventually meet his luck.' },
   { text: 'Do or do not. There is no try.' },
   { text: 'It ain’t about how hard you hit. It’s about how hard you can get hit and keep moving forward.' },
-  { text: 'I didn’t hear no bell.' },
   { text: 'A smooth sea never made a skilled sailor.' },
   { text: 'Choose discipline over motivation and consistency over perfection.' },
   { text: 'Some people land on high ground. Others have to build up.' },
+  { text: "Don't forget to stop and smell the roses." },
+  { text: 'The arrow that was pulled back the most flies the furthest.' },
+  { text: 'I didn’t hear no bell.' },
 ];
 let inkEffects = true;
 try { inkEffects = localStorage.getItem('ink-effects') !== 'off'; } catch {  }
 const display = document.querySelector('.display');
 const pauseButton = document.querySelector('#pause-quotes');
 const nextButton = document.querySelector('#next-quote');
+const previousButton = document.querySelector('#previous-quote');
 const quoteText = document.querySelector('#quote-text');
 const quotePosition = document.querySelector('#quote-position');
 const quoteCaption = document.querySelector('.quote-caption');
@@ -148,7 +151,6 @@ async function flushInk() {
   } finally { rendering = false; }
 }
 
-const palettes = ['night', 'paper'];
 function applyPalette(theme) {
   document.documentElement.dataset.theme = theme;
   document.querySelectorAll('[data-theme-choice]').forEach(button => {
@@ -158,16 +160,7 @@ function applyPalette(theme) {
     night: '#282b27', paper: '#e7e6dd',
   }[theme];
 }
-let initialTheme = 'paper';
-try {
-  const saved = localStorage.getItem('ink-palette');
-  if (palettes.includes(saved)) initialTheme = saved;
-  else if (saved === 'slate' || saved === 'light') {
-    initialTheme = 'paper';
-    localStorage.setItem('ink-palette', 'paper');
-  }
-} catch {  }
-applyPalette(initialTheme);
+applyPalette(document.documentElement.dataset.theme || 'paper');
 document.querySelectorAll('[data-theme-choice]').forEach(button => {
   button.addEventListener('click', () => {
     const theme = button.dataset.themeChoice;
@@ -212,12 +205,16 @@ let paused = false;
 let desiredPaused = false;
 let quotePending = false;
 let rotationTimer;
-let nextClickTimer;
+const quoteClickTimers = new Map();
 let measuredQuoteWidth = 0;
 function sizeQuoteDisplay(force = false) {
   const width = quoteDisplay.getBoundingClientRect().width;
   if (!width || (!force && width === measuredQuoteWidth)) return;
   measuredQuoteWidth = width;
+  if (window.matchMedia('(max-width: 560px)').matches) {
+    quoteContent.style.minHeight = '';
+    return;
+  }
   const sample = quoteContent.cloneNode(true);
   sample.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'));
   sample.setAttribute('aria-hidden', 'true');
@@ -247,23 +244,24 @@ function renderQuote() {
 }
 function scheduleRotation() {
   clearTimeout(rotationTimer);
-  if (!desiredPaused && !document.hidden && !quotePending) rotationTimer = setTimeout(() => nextQuote(false), 10000);
+  if (!desiredPaused && !document.hidden && !quotePending) rotationTimer = setTimeout(() => changeQuote(1, false), 8000);
 }
-async function nextQuote(manual = true) {
+async function changeQuote(direction, manual = true) {
   if (quotePending) return;
   quotePending = true;
   clearTimeout(rotationTimer);
+  const button = direction === -1 ? previousButton : nextButton;
   try {
-    await refreshInk(textRegion([quoteText, quoteCaption], () => manual ? controlInkRects(nextButton, false) : [], { groupDigits: true }), () => {
+    await refreshInk(textRegion([quoteText, quoteCaption], () => manual ? controlInkRects(button, false) : [], { groupDigits: true }), () => {
       if (manual) {
-        nextButton.classList.add('ink-clicked');
-        clearTimeout(nextClickTimer);
-        nextClickTimer = setTimeout(() => {
-          void refreshInk(controlRegion(nextButton, false), () => nextButton.classList.remove('ink-clicked'), 'next-feedback',
-            () => nextButton.classList.contains('ink-clicked'));
-        }, 180);
+        button.classList.add('ink-clicked');
+        clearTimeout(quoteClickTimers.get(button));
+        quoteClickTimers.set(button, setTimeout(() => {
+          void refreshInk(controlRegion(button, false), () => button.classList.remove('ink-clicked'), `${button.id}-feedback`,
+            () => button.classList.contains('ink-clicked'));
+        }, 180));
       }
-      quoteIndex = (quoteIndex + 1) % quotes.length;
+      quoteIndex = (quoteIndex + direction + quotes.length) % quotes.length;
       renderQuote();
     }, 'quote', () => manual || (!desiredPaused && !document.hidden));
   } finally {
@@ -281,7 +279,8 @@ pauseButton.addEventListener('click', () => {
     scheduleRotation();
   }, 'pause', () => paused !== desiredPaused).then(scheduleRotation);
 });
-nextButton.addEventListener('click', () => void nextQuote());
+previousButton.addEventListener('click', () => void changeQuote(-1));
+nextButton.addEventListener('click', () => void changeQuote(1));
 document.addEventListener('visibilitychange', () => { scheduleClock(); scheduleRotation(); });
 
 document.querySelectorAll('a, button, summary').forEach(control => {

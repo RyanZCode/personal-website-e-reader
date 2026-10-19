@@ -4,6 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#e7e6dd">
+  <script>
+    let initialTheme = 'paper';
+    try {
+      const saved = localStorage.getItem('ink-palette');
+      if (saved === 'night') initialTheme = 'night';
+      else if (saved === 'slate' || saved === 'light') {
+        localStorage.setItem('ink-palette', 'paper');
+      }
+    } catch {  }
+    document.documentElement.dataset.theme = initialTheme;
+    document.querySelector('meta[name="theme-color"]').content =
+      initialTheme === 'night' ? '#282b27' : '#e7e6dd';
+  </script>
   <meta name="description" content="Ryan - software, work, and a few quiet thoughts.">
   <title>Ryan Zhou</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -59,9 +72,9 @@
 
     <footer class="quote-bar">
       <div class="quote-display" id="quote-display">
-        <div class="quote-content"><span class="quote-mark" aria-hidden="true">“</span><div><p id="quote-text">Be the change that you wish to see in the world.</p><p class="quote-caption">MY FAVOURITE QUOTES <span aria-hidden="true">/</span> <span id="quote-position">01 OF 10</span></p></div></div>
+        <div class="quote-content"><span class="quote-mark" aria-hidden="true">“</span><div><p id="quote-text">Be the change that you wish to see in the world.</p><p class="quote-caption">MY FAVOURITE QUOTES <span aria-hidden="true">/</span> <span id="quote-position">01 OF 12</span></p></div></div>
       </div>
-      <div class="quote-controls"><button id="pause-quotes" type="button" aria-label="Pause quote rotation" aria-pressed="false"><svg class="pause-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10m6-10v10"/></svg><svg class="play-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 8 5-8 5z"/></svg></button><button id="next-quote" type="button" aria-label="Next quote"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></button></div>
+      <div class="quote-controls"><button id="previous-quote" type="button" aria-label="Previous quote"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M17 10H4m5-5-5 5 5 5"/></svg></button><button id="pause-quotes" type="button" aria-label="Pause quote rotation" aria-pressed="false"><svg class="pause-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10m6-10v10"/></svg><svg class="play-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 8 5-8 5z"/></svg></button><button id="next-quote" type="button" aria-label="Next quote"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></button></div>
     </footer>
   </div>
 
